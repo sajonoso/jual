@@ -134,7 +134,7 @@ print(iList);</pre>
 <pre>0 1 2 3 4 5 6 7 8 9</pre>
 <p>while JualScript will simply output the number 45. To fix this behaviour will require a change in the VM code. No change has been done to maintain byte compatibility with the Lua VM.  The simple solution to this is to use the concat function rather than the ambiguous + operator. Alternatively, start the loop with a value that can not be coerced into a number e.g. replacing the initial variable declaration to var iList=&#8221;*&#8221;; will produce the same results in both languages.</p>
 <p><strong>What features from Lua will work in JualScript?</strong></p>
-<p>Every feature not modifed to make Lua act like JavaScript should work in JualScript.  Here are some that may be useful:</p>
+<p>Every feature not modifed to make Lua behave like JavaScript should work in JualScript.  Here are some that may be useful:</p>
 <p>* String formating using sprintf format. Use the built-in Lua string.format() function.<br />
 * Goto statements:  see example file <strong><a href="https://github.com/sajonoso/jual/blob/master/samples/test_gotostat.js">test_gotostat.js</a></strong> in the samples folder<br />
 * Co-routines:  see example file <strong><a href="https://github.com/sajonoso/jual/blob/master/samples/test_coroutines.js">test_coroutines.js</a></strong> in samples folder</p>
