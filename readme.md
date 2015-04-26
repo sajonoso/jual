@@ -1,21 +1,22 @@
-This is the README file for JualScript
+This is the README file for Jual
 
 ### What is Jual?
 
-Jual is a embeddable Virtual Machine (VM) that implements the JualScript language.  JualScript is a small programming language that is a subset of ECMA Script (or JavaScript).
+Jual is an embeddable Virtual Machine (VM) that implements the JualScript language.  JualScript is a small programming language that is a subset of ECMA Script (or JavaScript).
 
 The implementation is derived from Lua 5.3.  The source code is a drop-in replacement for Lua, with most of the changes in the lexer and parser components. An initialization script provides some key functions, while the rest of the API is the same as Lua.
 
 A summary of the key language features and the base library functions is listed in the file jual_reference.txt.
 
+More information can be found on the project website http://sajonoso.github.io/jual
+
 
 ### Building
 The interpreter and compiler can be built by simply running your compiler on the amalgamated source code files that start with a number followed by an underscore. i.e.
-
+```
   gcc -o jualc.exe 2_jualc.c
-
   gcc -o jual.exe 3_jual.c
-
+```
 Alternatively, run make with the included Makefile.
 
 Note: The file jual_init.h containing the compiled initialization script was generated under a 32 bit environment.
