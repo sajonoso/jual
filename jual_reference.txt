@@ -1,0 +1,89 @@
+## DATA TYPES
+Number
+String
+
+## CONDITIONALS
+if (condition) { statements; };
+if (condition) { statements; } else if (condition) { statements; };
+
+
+## CONTROL STRUCTURES
+break;
+for (init; condition; increment) { statements; };
+for (variable in Array) { statements; };
+while (condition) { statements; };
+do { statements; } until (condition);
+
+
+## OPERATORS
+Arithmetic + - / * %
+Logical && || !
+comparisons == != < <= > >=
+Bitwise  & | ^ ~ << >>
+
+STANDARD LIBRARY
+
+## STRING Functions
+// Functions requiring an index does not support negative indexes.
+// Assume result is undefined when a negative index is passed.
+charAt( szText, iPos_0based );
+charCodeAt( szText, iPos_0based );
+fromCharCode(iCharactercode0, iCharacterCode1);
+indexOf( szText, szSearch, [iStart] );
+join( aArray, szSeparator );
+length( szText );
+replace( szString, szSearch, szReplacement );
+split( szString, szSeparator);
+slice( szString, iStart_0based, [iEnd_0based] );
+toLowerCase( szText );
+toUpperCase( szText );
+
+
+## TO BE IMPLEMENTED
+## Binary string operations ( also works on normal strings )
+getByte (szBinaryString, iPos);
+setByte (szBinaryString, iPos, iValue);
+compress ( szBinaryString , szAlgorithm);
+uncompress ( szBinaryString , szAlgorithm);
+base64enc ( szBinaryString );
+base64dec ( szBase64String );
+
+
+## MATH Functions
+Math.abs( iNum );
+Math.acos( iNum );
+Math.asin( iNum );
+Math.atan( iNum );
+Math.atan2( iNumY, iNumX );
+Math.ceil( iNum );
+Math.cos( iNum );
+Math.exp( iNum );
+Math.floor( iNum );
+Math.log( iNum );
+Math.max( iNum1, iNum2, ..., iNumN );
+Math.min( iNum1, iNum2, ..., iNumN );
+Math.pow( iNum );
+Math.random();
+Math.round( iNum );
+Math.sin( iNum );
+Math.sqrt( iNum );
+Math.tan( iNum );
+
+
+## IO Functions
+io.close(hFile);
+io.flush(hFile);
+io.exists(szFilename);
+io.open(szFilename, szMode);
+io.readbyte(hFile, iNumBytes);
+io.readline(hFile);
+io.seek(hFile, iPosition);
+io.size(hFile);
+io.write(hFile, szData);
+
+
+## OS Functions
+os.getenv( szVarName );
+os.exit( [iExitCode] );
+os.execute( szCommand );
+os.gettime( blUTC );
