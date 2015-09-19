@@ -10,7 +10,7 @@ var szLine;
 while (j<15) {
     szLine = "This is line number" + j + "\n";
     io.writebyte(hFile, szLine);
-    j=j+1;
+    j+=1;
 }
 io.close(hFile);
 
@@ -33,13 +33,13 @@ if (hBinWrite == null) { return; };
 var j=0;
 var aChars=[];
 while (j<256) {
-    aChars[j] = fromCharCode(j);
-    j=j+1;
+    aChars[j] = String.fromCharCode(j);
+    j+=1;
 };
-szLine = join(aChars);
+szLine = aChars.join();
 io.writebyte(hBinWrite, szLine);
 io.seek(hBinWrite,0x31);
-io.writebyte(hBinWrite, fromCharCode(0xFF) );
+io.writebyte(hBinWrite, String.fromCharCode(0xFF) );
 io.close(hBinWrite);
 
 

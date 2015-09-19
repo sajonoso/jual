@@ -1,5 +1,6 @@
 /*
 ** $Id: llex.c,v 2.89 2014/11/14 16:06:09 roberto Exp $
+** Copyright 2015 Sajon Oso
 ** Lexical Analyzer
 ** See Copyright Notice in lua.h
 */
@@ -38,7 +39,7 @@
 /* ORDER RESERVED */
 static const char *const luaX_tokens [] = {
     "&&", "!", "||", "break", "do", "else",
-    "end", "false", "for", "function", "goto", "if", "in",
+    "}", "false", "for", "function", "goto", "if", "in",
     "var", "null",
     "return", "true", "until", "while",
     /* FUTURE RESERVED */
@@ -48,6 +49,7 @@ static const char *const luaX_tokens [] = {
     "super", "switch", "throw", "to", "try", "undefined",  
     /* other terminal symbols */
     "//", "..", "...", "==", ">=", "<=", "!=",
+    "+=", "-=", "/=", "*=", "%=",
     "<<", ">>", "::", "<eof>",
     "<number>", "<integer>", "<name>", "<string>"
 };
@@ -544,13 +546,12 @@ static int llex (LexState *ls, SemInfo *seminfo) {
             }
           }
         } else {
-            if (ls->current != '=') {
-                return '/';
+            if (ls->current == '=') {
+                next(ls);
+                return TK_CDIV;
             } else {
-                //next(ls);
-                //return TK_CDIV;
-                lexerror(ls, "operator /= is not supported at this time", 0);
-            };
+                return '/';
+            }
         };
         
         end_long_comment: break;
@@ -625,6 +626,26 @@ static int llex (LexState *ls, SemInfo *seminfo) {
         if (check_next1(ls, ':')) return TK_DBCOLON;
         else return ':';
       }
+      case '+': {
+        next(ls);
+        if (check_next1(ls, '=')) return TK_CADD;
+        else return '+';
+      }
+      case '-': {
+        next(ls);
+        if (check_next1(ls, '=')) return TK_CSUB;
+        else return '-';
+      }
+      case '*': {
+        next(ls);
+        if (check_next1(ls, '=')) return TK_CMUL;
+        else return '*';
+      }
+      case '%': {
+        next(ls);
+        if (check_next1(ls, '=')) return TK_CMOD;
+        else return '%';
+      }      
 /*
       case '"': case '\'': {  // short literal strings
         read_string(ls, ls->current, seminfo);

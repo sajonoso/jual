@@ -5,10 +5,15 @@ var szOut;
 function RoundTo(iDecimalPlaces, fNumber) {
   if (iDecimalPlaces > 0) {
     var mult = Math.pow(10, iDecimalPlaces);
-    return toString(Math.floor((fNumber * mult) + 0.5) / mult);
+    var value = Math.floor((fNumber*mult)+0.5) / mult;
+    if (value%1==0) { // if integer result set to integer
+        return value|0;
+    } else {
+        return value;
+    };
   };
 
-  return toString(Math.floor(fNumber + 0.5));
+  return Math.floor(fNumber+0.5)|0;
 };
 
 var iDec = 12;

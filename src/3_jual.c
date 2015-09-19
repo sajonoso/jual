@@ -21,6 +21,9 @@ run "gcc -E" to generate preprocessor output only
 #define LUA_ANSI
 #endif
 
+// The byte array and sqlite3 modules can be integrated into the VM interpreter by uncommenting the line below
+// #define BUILTIN_MODULES
+
 #define luaall_c
 #define lobject_c
 
@@ -71,6 +74,8 @@ run "gcc -E" to generate preprocessor output only
 
 /* lua */
 #ifdef MAKE_LUA
+// don't use readline library
+#undef LUA_USE_READLINE
 #include "lua.c"
 #endif
 

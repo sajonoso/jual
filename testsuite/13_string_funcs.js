@@ -1,9 +1,7 @@
-/*
-    This file tests the string library
-*/
+//    This file tests the string library
 
 function printarray(oArray) {
-    var iLen=length(oArray);
+    var iLen=oArray.size();
     for (i=0; i<iLen; i=i+1) { print(i + ": " + oArray[i]) };
 }
 
@@ -16,55 +14,59 @@ var szText="Mary had a little lamb, " +
 "And everywhere that Mary went, " +
 "The lamb was sure to go."
 
-var aWords = split(szText," ");
+var aWords = szText.split(" ");
 
 var szNewWord = "";
 
-for (i=0; i<length(aWords[0]); i=i+1) {
-    print( charAt(aWords[0], i) + " " + charCodeAt(aWords[0], i) );
-    szNewWord = szNewWord + fromCharCode(charCodeAt(aWords[0], i));
+for (i=0; i<aWords[0].size(); i=i+1) {
+    print( aWords[0].charAt(i) + " " + aWords[0].charCodeAt(i) );
+    szNewWord = szNewWord + String.fromCharCode(aWords[0].charCodeAt(i));
 };
 
-print( concat(aWords[0], aWords[1], aWords[2], aWords[3], aWords[4]) );
+print( aWords[0].concat(aWords[1], aWords[2], aWords[3], aWords[4]) );
 
 print( szText );
 printarray(aWords);
 
 print(szNewWord);
 
-print( indexOf(szText, "chop") );
-print( indexOf(szText, "Mary") );
-print( indexOf(szText, "Mary", 5) );
-print( indexOf(szText, "go.") );
-print( indexOf(szText, "snow") );
+print( szText.indexOf("chop") );
+print( szText.indexOf("Mary") );
+print( szText.indexOf("Mary", 5) );
+print( szText.indexOf("go.") );
+print( szText.indexOf("snow") );
 
-var szNewText=join(aWords, "_");
+var szNewText = aWords.join("_");
 
 print(szNewText);
 
-print( length(szText) );
-print( length(aWords) );
-print( length("") );
-print( length(aWords[1]) );
-print( length(aWords[2]) );
+print( szText.size() );
+print( aWords.size() );
+print( ("").size() );
+print( aWords[1].size() );
+print( aWords[2].size() );
 
-print( replace(szText, "lamb", "cat") );
+print("XXX");
+
+print( szText.replace("lamb", "cat") );
+
+print("ZZZ");
 
 // Jual implementation of Slice does not offically support negative indexes
-print( slice(szText, 0) );
-print( slice(szText, 2,6) );
-print( slice(szText, 7) );
-print( slice(szText, 13,106) );
+print( szText.slice(0) );
+print( szText.slice(2,6) );
+print( szText.slice(7) );
+print( szText.slice(13,106) );
 
 var szTst = "One two three four";
-print ( slice(szTst, 0, 0) );
-print ( slice(szTst, 2, 5) );
-print ( slice(szTst, 0, 5) );
-print ( slice(szTst, 7, 18) );
-print ( slice(szTst, 15, 18) );
+print ( szTst.slice(0, 0) );
+print ( szTst.slice(2, 5) );
+print ( szTst.slice(0, 5) );
+print ( szTst.slice(7, 18) );
+print ( szTst.slice(15, 18) );
 
-print( toLowerCase(szText) );
-print( toUpperCase(szText) );
+print( szText.toLowerCase() );
+print( szText.toUpperCase() );
 
 print( parseInt("12") );
 print( parseInt("3") );

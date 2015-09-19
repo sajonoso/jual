@@ -10,33 +10,49 @@ if (condition) { statements; } else if (condition) { statements; };
 ## CONTROL STRUCTURES
 break;
 for (init; condition; increment) { statements; };
-for (variable in Array) { statements; };
+for (variable in AssocArray) { statements; };
 while (condition) { statements; };
 do { statements; } until (condition);
 
 
 ## OPERATORS
 Arithmetic + - / * %
+Compound Arithmetic += -= *= /= %=
 Logical && || !
 comparisons == != < <= > >=
 Bitwise  & | ^ ~ << >>
 
+
 STANDARD LIBRARY
+## GENERAL Functions
+isNaN(var) // for compatibility with Javascript
+parseInt(szText, iRadix)
+parseFloat(szText);
+isNum(cChar)
+isAlpha(cChar)
+noexpr(szString) // use with replace for no regular expression (i.e exact match)
+
+## NUMBER Functions
+number.toString(radix)
 
 ## STRING Functions
-// Functions requiring an index does not support negative indexes.
+// Assume that functions requiring an index does not support negative indexes.
 // Assume result is undefined when a negative index is passed.
-charAt( szText, iPos_0based );
-charCodeAt( szText, iPos_0based );
-fromCharCode(iCharactercode0, iCharacterCode1);
-indexOf( szText, szSearch, [iStart] );
-join( aArray, szSeparator );
-length( szText );
-replace( szString, szSearch, szReplacement );
-split( szString, szSeparator);
-slice( szString, iStart_0based, [iEnd_0based] );
-toLowerCase( szText );
-toUpperCase( szText );
+// the only exception is the slice method which only support 1 positive or negative index or 2 positive indexes
+string.charAt( iPos_0based )
+string.charCodeAt( iPos_0based )
+string.fromCharCode(iCharactercode0, iCharacterCode1)
+string.indexOf( szSearch, [iStart] )
+string.len()
+string.replace( szSearch, szReplacement )
+string.split( szSeparator)
+string.slice( iStart_0based, [iEnd_0based] )
+string.toLowerCase()
+string.toUpperCase()
+
+
+## Array function
+array.join(szSeparator)
 
 
 ## TO BE IMPLEMENTED
@@ -69,8 +85,16 @@ Math.sin( iNum );
 Math.sqrt( iNum );
 Math.tan( iNum );
 
+## DATE object
+date.getFullYear();
+date.getMonth();
+date.getDate();
+date.getHours();
+date.getMinutes();
+date.getSeconds();
+date.toLocalISOString();
 
-## IO Functions
+## FILE Functions
 io.close(hFile);
 io.flush(hFile);
 io.exists(szFilename);
@@ -79,7 +103,7 @@ io.readbyte(hFile, iNumBytes);
 io.readline(hFile);
 io.seek(hFile, iPosition);
 io.size(hFile);
-io.write(hFile, szData);
+io.writebyte(hFile, szData);
 
 
 ## OS Functions

@@ -17,4 +17,4 @@ myVar = "ERROR1";
 print(myVar /* Bad form but should work*/ );
 print("/* YES1 */" /* More bad form but should work */ );
 print( /* More bad form but should work */ "/* YES2 */" );
-print( "\r\n YES3 \\" );
+print( "\n YES3 \\" );

@@ -13,14 +13,13 @@ function even(x) {
     print('D: even ', x);
 }
 
-co = coroutine.create(
-    function (x) {
-        for (i=1; i<=x; i=i+1) {
-            if (i==3) { coroutine.yield(-1); };
-            if (i % 2 == 0) { even(i); } else { odd(i); };
-        };
-    }
-)
+function cro(x) {
+    for (i=1; i<=x; i=i+1) {
+        if (i==3) { coroutine.yield(-1); };
+        if (i % 2 == 0) { even(i); } else { odd(i); };
+    };
+}
+co = coroutine.create(cro)
 
 var count = 1
 while (coroutine.status(co) != 'dead') {

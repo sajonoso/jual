@@ -3,7 +3,7 @@
 
 var j = 0;
 while (j < 4) {
-    j = j + 1;
+    j += 1;
     print (j);
 };
 
@@ -17,7 +17,7 @@ j = 0;
 while (j < 50) {
     szOut = (szOut + " " + j);
     if (j  == 20) { break; };
-    j = j + 1;
+    j += 1;
 };
 print (szOut);
 
@@ -29,10 +29,10 @@ while (x < 10) {
     while (y < 50) {
         szOut = (szOut + " " + y);
         if (y  == 20) { break; };
-        y = y + 1;
+        y += 1;
     };
     szOut = (szOut + "\n");
-    x = x + 1;
+    x += 1;
     
     if (x == 6) { break; };
 };
@@ -43,6 +43,6 @@ print("");
 
 j = 1;
 while ( j < 4 && k == 19) {
-    j = j + 1;
+    j += 1;
     print (j);    
 };

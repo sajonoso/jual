@@ -1,93 +1,115 @@
 /*
-** Jual SQLite3 interface
+    Copyright (C) 2015 Sajon Oso 
+    Jual Native C module - SQLite3 module
 */
 
-#include "jualmod.h"
+#include <string.h>
+#include <stdlib.h>
 
-#define SQLITE_OMIT_DEPRECATED 1
-#define SQLITE_OMIT_LOAD_EXTENSION 1
-#include "my_sqlite3.c"
-
+#include "jxapi.h"
+#include "sqlite3.h"
 
 const char *szFIELDSEP = "\t";
 const char *szRECSEP = "\n";
 
-LUALIB_API int sql3_execute(lua_State * L)
+int sql3_execute(jual_xapi *JXAPI)
 {
-	int iResult = -1;
-    size_t szLen;
-	const char *sqldbname = lua_tolstring(L, 1, &szLen);
-	const char *sqlstatement = lua_tolstring(L, 2, &szLen);
-	sqlite3 *sql3db;
+    void *L = JXAPI->LS;
+    defGetString *GetString = (defGetString *)JXAPI->fnGetString;
+    defNumberPush *NumberPush = (defNumberPush *)JXAPI->fnNumberPush;
 
-	if ( sqlite3_open( sqldbname, &sql3db ) == SQLITE_OK ) {
-		if (sqlite3_exec( sql3db, sqlstatement, 0, 0, 0 ) == SQLITE_OK )
+    int iResult = -1;
+
+    const char *sqldbname = GetString(L, 1, NULL);
+    const char *sqlstatement = GetString(L, 2, NULL);
+
+    sqlite3 *sql3db;
+
+    if ( sqlite3_open( sqldbname, &sql3db ) == SQLITE_OK ) {
+        if (sqlite3_exec( sql3db, sqlstatement, 0, 0, 0 ) == SQLITE_OK )
             iResult = sqlite3_changes(sql3db);
-	};
-	sqlite3_close( sql3db );
+    };
+    sqlite3_close( sql3db );
 
-	lua_pushinteger(L, (lua_Integer)iResult);
+    NumberPush(L, iResult);
 	return 1;
 }
 
 
-LUALIB_API int sql3_query(lua_State * L)
+int sql3_query(jual_xapi *JXAPI)
 {
-	int retval;
-    size_t szLen;
-	const char *sqldbname = lua_tolstring(L, 1, &szLen);
-	const char *sqlstatement = lua_tolstring(L, 2, &szLen);
-    int iP3IsNumber; // is the third parameter a number
-    int iUseRecordsep = lua_tointegerx(L, 3, &iP3IsNumber);
-    if (!iP3IsNumber) { iUseRecordsep = 1; }; // default to use record separator
+    void *L = JXAPI->LS;
+    defGetNumber *GetNumber = (defGetNumber *)JXAPI->fnGetNumber;
+    defGetString *GetString = (defGetString *)JXAPI->fnGetString;
 
-	sqlite3 *sql3db;
-	sqlite3_stmt *stmt;
+    defStrInit *StrInit = (defStrInit *)JXAPI->fnStrInit;
+    defStrAppend *StrAppend = (defStrAppend *)JXAPI->fnStrAppend;
+    defStrPush *StrPush = (defStrPush *)JXAPI->fnStrPush;
+
+    const char *sqldbname = GetString(L, 1, NULL);
+    const char *sqlstatement = GetString(L, 2, NULL);
+    int blFirstRowOnly = GetNumber(L, 3);
+
+    char strBuffer[JXAPI->STRBUFFER_SIZE];
+    char *cResult = StrInit(L, strBuffer, 32);    
+    
+    sqlite3 *sql3db;
+    sqlite3_stmt *stmt;
     int iLenFIELDSEP = strlen(szFIELDSEP);
     int iLenRECSEP = strlen(szRECSEP);
-    luaL_Buffer bResult;
-    char *sb = luaL_buffinitsize(L, &bResult, 64);
 
-	if ( sqlite3_open( sqldbname, &sql3db ) == SQLITE_OK )
-	{
-		if ( sqlite3_prepare( sql3db, sqlstatement, -1,&stmt,0 ) == SQLITE_OK )
-		{
-			int iNumColumns = sqlite3_column_count(stmt);
+    if ( sqlite3_open( sqldbname, &sql3db ) == SQLITE_OK )
+    {
+        if ( sqlite3_prepare( sql3db, sqlstatement, -1,&stmt,0 ) == SQLITE_OK )
+        {
+            int iNumColumns = sqlite3_column_count(stmt);
+            int retval = sqlite3_step(stmt);
 
-			retval = sqlite3_step(stmt);
-			while (retval == SQLITE_ROW)
-			{
-				int col;
-				for ( col=0; col<iNumColumns; col++)
-				{
-					const char *val = (const char*)sqlite3_column_text(stmt,col);
-					if (col > 0) luaL_addlstring(&bResult, szFIELDSEP, iLenFIELDSEP);
-					if (val) luaL_addlstring(&bResult, val, strlen(val));
-				};
-
-                if (iUseRecordsep) {
-                    luaL_addlstring(&bResult, szRECSEP, iLenRECSEP);
-                    retval = sqlite3_step(stmt);
-                } else {
-                    retval = !SQLITE_ROW;
+            while (retval == SQLITE_ROW)
+            {
+                int col;
+                for ( col=0; col<iNumColumns; col++)
+                {
+                    const char *val = (const char*)sqlite3_column_text(stmt,col);
+                    if (col > 0) StrAppend(strBuffer, szFIELDSEP, iLenFIELDSEP);
+                    if (val) StrAppend(strBuffer, val, strlen(val));
                 };
-			};
-		};
-	};
 
-	sqlite3_close( sql3db );
+                if (blFirstRowOnly) {
+                    retval = !SQLITE_ROW;
+                } else {
+                    StrAppend(strBuffer, szRECSEP, iLenRECSEP);
+                    retval = sqlite3_step(stmt);                    
+                };
+            };
+        };
+    };
 
-	luaL_pushresult(&bResult);
+    sqlite3_close( sql3db );
+
+    StrPush(strBuffer);
 	return 1;
 }
 
-static const luaL_Reg libsqlite3[] = {
-	{"query", sql3_query},
-	{"execute", sql3_execute},
-	{NULL, NULL}
-};
 
-LUAMOD_API int luaopen_libsqlite3 (lua_State *L) {
-  luaL_newlib(L, libsqlite3);
-  return 1;
+const char initString[]="\
+lib_sqlite3_execute = ffi_map('libsqlite3', 'sql3_execute'); \
+lib_sqlite3_query = ffi_map('libsqlite3', 'sql3_query'); \
+function sqlite3_execute(db,sql){return ffi_call(lib_sqlite3_execute,db,sql)}; \
+function sqlite3_query(db,sql,nos){return ffi_call(lib_sqlite3_query,db,sql,nos)}; \
+";
+
+int libsqlite3_init(jual_xapi *JXAPI) {
+    void *L = JXAPI->LS;
+    defStrInit *StrInit = (defStrInit *)JXAPI->fnStrInit;
+    defStrAppend *StrAppend = (defStrAppend *)JXAPI->fnStrAppend;
+    defStrPush *StrPush = (defStrPush *)JXAPI->fnStrPush;
+
+    char strBuffer[JXAPI->STRBUFFER_SIZE];
+    StrInit(L, strBuffer, 32);
+    StrAppend(strBuffer, initString, sizeof(initString)-1);
+    StrPush(strBuffer);
+
+    return 0;
 }
+

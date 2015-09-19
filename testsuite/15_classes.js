@@ -1,29 +1,45 @@
 
-// Testing classes using closures
+// A method of object orientation that works the same in JavaScript
+// and JualScript
 
-// define class for person
-function Person(iAge, szName) {
+
+// Object methods
+Animal_Eat = function(food) {
+    print(this.Name + " just ate a " + food);
+}
+Animal_Chase = function(prey) {
+    print(this.Name + ", the " + this.Type + " is chasing a " + prey);
+}
+// Object Constructor
+function Animal(name, age, type) {
     var obj = {};
-    // public properties
-    obj.age = iAge;
-    obj.Name = szName;
-        
-    // public methods
-    obj.setAge = function(iAge) { obj.age = iAge; };
-    obj.getAge = function() { return obj.age; };
-    obj.setName = function (szName) { obj.Name = szName; };
-    obj.getName = function () { return obj.Name; };
-    obj.whoami = function () { print(obj.Name); };
+    // Properties
+    obj.Name = name;
+    obj.Type = type;
+    obj.Age = age;
 
+    // Methods
+    obj.Eat = Animal_Eat;
+    obj.Chase = Animal_Chase;
+
+    // example of inline method definition. This should be avoided to reduce memory usage
+    // as each instance of object will create it's own anonymous function
+    obj.Sleep = function(time) {
+        print( this.Name + " will sleep for " + time + " minutes" );
+    };
     return obj;
 };
 
 
-John = Person(15, "John Smith");
-John.whoami();
-print(John.getAge());
+var Lion = Animal("Simba", 5, "Lion");
+var Tiger = Animal("Tiga", 3, "Tiger");
 
-Jane = Person(22, "Jane Smith");
-Jane.whoami();
+print("Did you know that " + Lion.Name + " is a " + Lion.Type + "?");
+Lion.Eat("person");
+Lion.Chase("car");
+Lion.Sleep(5);
 
-print(Jane.age);
+print("");
+
+Tiger.Chase("Tarzan");
+Tiger.Eat("Jane");

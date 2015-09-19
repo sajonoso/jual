@@ -1,8 +1,9 @@
 @echo off
 /* 2>nul:
-
+rem  Copyright 2015 Sajon Oso
 rem  This batch file runs the Windows Scripting Host (WSH) and executes the source file passed as the first argument
-rem  The embedded script implements some functions to make the WSH engine compatible with JualScript
+rem  The embedded script loads a library file (jual_compat.js) which will make the WSH engine compatible with JualScript
+rem  This compatibility script can be modified for other javascript engines as well like NodeJS.
 
 set JSCRIPTOUT=tmp.jsz
 echo /* > %JSCRIPTOUT%
@@ -12,33 +13,87 @@ if EXIST %1 set TARGETSCRIPT=%1
 if NOT %TARGETSCRIPT%==NUL (
   type %TARGETSCRIPT% >> %JSCRIPTOUT%
   cscript /nologo /E:jscript %JSCRIPTOUT% %*
-  del %JSCRIPTOUT%
+  rem del %JSCRIPTOUT%
 )
 goto :eof
 */
 
 
-function print(szOut)
-{
-    var szTmp=szOut;
-    if (typeof szOut == 'string') szTmp=szOut.replace(/\n/g,"\r\n");
-    if (typeof szOut == 'boolean') szTmp=szOut?"true":"false";
-    WScript.echo(szTmp);
-};
 
-function charAt(sz,i) {return sz.charAt(i)};
-function charCodeAt(sz,i) {return sz.charCodeAt(i)};
-function concat() { return Array.prototype.slice.call(arguments).join(""); };
-fromCharCode = String.fromCharCode;
-function indexOf(sz,p,i) { return sz.indexOf(p,i) };
-function join(a,sep) { return a.join(sep) };
-function length(obj) {return obj.length};
-function replace(sz,s,r) { return sz.replace(s,r) };
-function split(sz,sep) { return sz.split(sep) };
-function slice(sz,s,e) { return sz.slice(s,e) };
-function toLowerCase(sz) { return sz.toLowerCase() };
-function toUpperCase(sz) { return sz.toUpperCase() };
-function toString(obj,rad) { return obj.toString(rad?rad:10) };
+// ## define function to load a library
+function includeJS (filename) {
+    var fso = new ActiveXObject ("Scripting.FileSystemObject");
+    if (!fso.FileExists(filename)) filename = "../" + filename;
+    if (!fso.FileExists(filename)) filename = "../bin/" + filename;
+    var fileStream = fso.openTextFile (filename);
+    var fileData = fileStream.readAll();
+    fileStream.Close();
+    return fileData;
+}
 
-var arg=[]; for (i=0; i<WScript.arguments.length; i++) { arg[i] = WScript.arguments(i); };
+eval(includeJS("jscript2jual.js"));
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// To help debug code when running jscript with this wrapper file, simply subtract the reported error line number by 100
+// For the calculation to work this line should be line 99 with a terminating new line character.

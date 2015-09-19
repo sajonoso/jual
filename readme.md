@@ -25,10 +25,13 @@ To compile the program under a 64-bit environment will require the original sour
 ### Running the test scripts
 The test scripts are designed to compare the output of the Jual VM with another JavaScript engine to verify its correctness.  The Windows Scripting Host is the obvious choice in a Windows machine.
 
-Run the batch file: *runtests.cmd* to execute the test suite.
+Run the batch file: *runtests_wsh.cmd* to execute the test suite.
+
+Under Linux the Jual VM is compared with the NodeJS runtime.
 
 ### Try it for yourself
 The included Windows 32-bit binaries are compiled using MingW (gcc version 4.8.1).  Simply download these from the bin folder and run
+There are also binaries for Linux compiled under 32-bit RHEL 6.6
 
 ### Licensing
 The software is licensed under the 3-clause BSD License.  Please see the file called LICENSE.txt

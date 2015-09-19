@@ -1,0 +1,10 @@
+Version 1.0
+Initial release based on Lua 5.3.0
+
+Version 1.1
+* Updated code base to Lua 5.3.1
+* implemented compund arithmetic assignment
+* Implemented new module library system (simply include jxapi.h)
+* Implemented new library for TCP/IP access with sample echo server and client
+* Implemented Date object
+* Compiled linux binaries (using 32-bit RHEL 6.6)

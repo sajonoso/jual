@@ -1,5 +1,6 @@
 /*
 ** $Id: lparser.c,v 2.147 2014/12/27 20:31:43 roberto Exp $
+** Copyright 2015 Sajon Oso
 ** Lua Parser
 ** See Copyright Notice in lua.h
 */
@@ -646,9 +647,9 @@ struct ConsControl {
   int tostore;  /* number of array elements pending to be stored */
 };
 
-
+/* replaced by function jual_recfield
 static void recfield (LexState *ls, struct ConsControl *cc) {
-  /* recfield -> (NAME | '['exp1']') = exp1 */
+  // recfield -> (NAME | '['exp1']') = exp1
   FuncState *fs = ls->fs;
   int reg = ls->fs->freereg;
   expdesc key, val;
@@ -657,16 +658,16 @@ static void recfield (LexState *ls, struct ConsControl *cc) {
     checklimit(fs, cc->nh, MAX_INT, "items in a constructor");
     checkname(ls, &key);
   }
-  else  /* ls->t.token == '[' */
+  else  // ls->t.token == '['
     yindex(ls, &key);
   cc->nh++;
   checknext(ls, '=');
   rkkey = luaK_exp2RK(fs, &key);
   expr(ls, &val);
   luaK_codeABC(fs, OP_SETTABLE, cc->t->u.info, rkkey, luaK_exp2RK(fs, &val));
-  fs->freereg = reg;  /* free registers */
+  fs->freereg = reg;  // free registers
 }
-
+*/
 
 static void closelistfield (FuncState *fs, struct ConsControl *cc) {
   if (cc->v.k == VVOID) return;  /* there is no list item */
@@ -702,28 +703,53 @@ static void listfield (LexState *ls, struct ConsControl *cc) {
   cc->tostore++;
 }
 
+static void jual_recfield (LexState *ls, struct ConsControl *cc) {
+  /* recfield -> (NAME | '['exp1']') = exp1 */
+  FuncState *fs = ls->fs;
+  int reg = ls->fs->freereg;
+  expdesc key, val;
+  int rkkey;
+  if (ls->t.token == TK_NAME) {
+    checklimit(fs, cc->nh, MAX_INT, "items in a constructor");
+    checkname(ls, &key);
+  }
+  else  {/* ls->t.token == '[' */
+    // yindex(ls, &key);
+    expr(ls, &key);
+    luaK_exp2val(ls->fs, &key);      
+  };
+
+  cc->nh++;
+  checknext(ls, ':');
+  rkkey = luaK_exp2RK(fs, &key);
+  expr(ls, &val);
+  luaK_codeABC(fs, OP_SETTABLE, cc->t->u.info, rkkey, luaK_exp2RK(fs, &val));
+  fs->freereg = reg;  /* free registers */
+}
 
 static void field (LexState *ls, struct ConsControl *cc) {
   /* field -> listfield | recfield */
   switch(ls->t.token) {
+    case TK_INT:
+    case TK_FLT:
+    case TK_STRING:
     case TK_NAME: {  /* may be 'listfield' or 'recfield' */
-      if (luaX_lookahead(ls) != '=')  /* expression? */
+      if (luaX_lookahead(ls) != ':')  /* expression? */
         listfield(ls, cc);
       else
-        recfield(ls, cc);
+        jual_recfield(ls, cc);
       break;
     }
-    case '[': {
+/*    case '[': {
       recfield(ls, cc);
       break;
-    }
+    } */
     default: {
       listfield(ls, cc);
       break;
     }
   }
 }
-
 
 static void constructor (LexState *ls, expdesc *t) {
   /* constructor -> '{' [ field { sep field } [sep] ] '}'
@@ -751,7 +777,7 @@ static void constructor (LexState *ls, expdesc *t) {
 }
 
 
-static void jual_recfield (LexState *ls, struct ConsControl *cc) {
+static void jual_firstlistfield (LexState *ls, struct ConsControl *cc) {
   /* recfield -> (NAME | '['exp1']') = exp1 */
   FuncState *fs = ls->fs;
   int reg = ls->fs->freereg;
@@ -768,6 +794,47 @@ static void jual_recfield (LexState *ls, struct ConsControl *cc) {
   expr(ls, &val);
   luaK_codeABC(fs, OP_SETTABLE, cc->t->u.info, rkkey, luaK_exp2RK(fs, &val));
   fs->freereg = reg;  /* free registers */    
+}
+
+/*
+static void jual_1arg (LexState *ls, expdesc *f, expdesc *arg, int line) {
+  FuncState *fs = ls->fs;
+  int base, nparams;
+
+  lua_assert(f->k == VNONRELOC);
+  base = f->u.info;  // base register for call 
+
+  if (arg->k != VVOID) {
+      luaK_codeABC(fs, OP_MOVE, fs->freereg, arg->u.info, 0);
+  };
+
+  nparams = 1;
+  luaK_codeABC(fs, OP_CALL, base, nparams+1, 1);
+  fs->freereg = base; // call remove function and arguments;
+}
+*/
+static void jual_constructor_init(LexState *ls, expdesc *table, int pc) {
+  // call Array_MT_setmetatable(table) to set table methods
+  TString *varname = luaX_newstring(ls, "Array_MT_setmetatable", 21);
+  expdesc var;
+  expdesc key;
+  FuncState *fs = ls->fs;
+
+  init_exp(&var, VRELOCABLE, pc);
+  singlevaraux(fs, ls->envn, &var, 1);  // get environment variable //
+  lua_assert(var->k == VLOCAL || var->k == VUPVAL);
+  codestring(ls, &key, varname);  // key is variable name //
+  luaK_indexed(fs, &var, &key);  // env[varname] //
+  luaK_exp2anyregup(ls->fs, &var); 
+
+  int base, nparams;
+  lua_assert(var.k == VNONRELOC);
+  luaK_codeABC(fs, OP_MOVE, fs->freereg, table->u.info, 0);
+
+  nparams = 1;
+  base = var.u.info;  // base register for call
+  luaK_codeABC(fs, OP_CALL, base, nparams+1, 1);
+  fs->freereg = base; // call remove function and arguments;   
 }
 
 static void jual_constructor (LexState *ls, expdesc *t) {
@@ -789,9 +856,9 @@ static void jual_constructor (LexState *ls, expdesc *t) {
     if (ls->t.token == ']') break;
     closelistfield(fs, &cc);
     if (iCount == 0) {
-        jual_recfield(ls, &cc);
+        jual_firstlistfield(ls, &cc);
     } else {
-        field(ls, &cc);
+        listfield(ls, &cc);
     };
     iCount++;
   } while (testnext(ls, ',') || testnext(ls, ';'));
@@ -800,6 +867,9 @@ static void jual_constructor (LexState *ls, expdesc *t) {
 
   SETARG_B(fs->f->code[pc], luaO_int2fb(cc.na)); /* set initial array size */
   SETARG_C(fs->f->code[pc], luaO_int2fb(cc.nh));  /* set initial table size */
+  
+  // ## finished table definition - call init function on table
+  jual_constructor_init(ls, cc.t, pc);
 }
 
 
@@ -845,7 +915,7 @@ static void jual_body (LexState *ls, expdesc *e, int ismethod, int line) {
   open_func(ls, &new_fs, &bl);
   checknext(ls, '(');
   if (ismethod) {
-    new_localvarliteral(ls, "self");  /* create 'self' parameter */
+    new_localvarliteral(ls, "this");  /* create 'self' parameter */
     adjustlocalvars(ls, 1);
   }
   parlist(ls);
@@ -947,17 +1017,86 @@ static void primaryexp (LexState *ls, expdesc *v) {
   }
 }
 
+/*
+static void jual_noargs (LexState *ls, expdesc *f, int line) {
+  FuncState *fs = ls->fs;
+  expdesc args;
+  int base, nparams;
 
+  args.k = VVOID;
+
+  lua_assert(f->k == VNONRELOC);
+  base = f->u.info;  // base register for call
+  if (hasmultret(args.k))
+    nparams = LUA_MULTRET;  // open call
+  else {
+    nparams = fs->freereg - (base+1);
+  }
+  init_exp(f, VCALL, luaK_codeABC(fs, OP_CALL, base, nparams+1, 2));
+  luaK_fixline(fs, line);
+  fs->freereg = base+1;  // call remove function and arguments and leaves
+                         //   (unless changed) one result 
+}
+*/
+
+// 1 means name is reserved, 0 otherwise
+static int IsReservedName(const char *sExp) {
+    const char *aKeyWords[] = {"coroutine", "table", "io", "os", "string", "String", "utf8", "bit32", "math", "Math", "debug", "package", NULL };
+    int i=0;
+    if (sExp[0] == '\0') return 0;
+    while (aKeyWords[i] != NULL) {
+        if (strcmp(aKeyWords[i], sExp) == 0) return 1;
+        i++;
+    };
+
+    return 0;
+}
+
+// MODIFIED
 static void suffixedexp (LexState *ls, expdesc *v) {
   /* suffixedexp ->
        primaryexp { '.' NAME | '[' exp ']' | ':' NAME funcargs | funcargs } */
   FuncState *fs = ls->fs;
   int line = ls->linenumber;
+
+  // Note down primary expression for later comparison in function IsReservedName();
+  const char *sPrimaryExp = "\0";
+  if (ls->t.token == TK_NAME) sPrimaryExp = getstr(ls->t.seminfo.ts);
+
   primaryexp(ls, v);
+
   for (;;) {
     switch (ls->t.token) {
       case '.': {  /* fieldsel */
-        fieldsel(ls, v);
+          expdesc key;
+          luaX_next(ls);  /* skip the dot or colon */
+          checkname(ls, &key);
+          // const char *lastKey = getstr(ls->t.seminfo.ts);
+          // DEBUG printf("%s.%s\r\n", sPrimaryExp, lastKey);
+
+          int nextToken = ls->t.token;
+          int isReserved = IsReservedName(sPrimaryExp);
+          
+          if ( (nextToken != '(') || isReserved) {
+/*            if ( (strcmp("length", lastKey)==0) && (!isReserved) && nextToken != '=') {
+                // Special case accessing length property
+                //DEBUG printf("%s.%s(*)\r\n", sPrimaryExp, lastKey);
+                luaK_exp2anyregup(fs, v);
+                luaK_prefix(ls->fs, OPR_LEN, v, line);
+
+                // if want to convert to call a length method use the two lines below instead
+                //luaK_self(fs, v, &key);
+                //jual_noargs(ls, v, line);                
+            } else { */
+                // if not calling a function access key
+                luaK_exp2anyregup(fs, v);
+                luaK_indexed(fs, v, &key);
+            // };
+          } else {
+            // otherwise call method with self parameter
+            luaK_self(fs, v, &key);
+            funcargs(ls, v, line);
+          };
         break;
       }
       case '[': {  /* '[' exp1 ']' */
@@ -1033,7 +1172,7 @@ static void jual_simpleexp (LexState *ls, expdesc *v) {
     }
     case TK_FUNCTION: {
       luaX_next(ls);
-      jual_body(ls, v, 0, ls->linenumber);
+      jual_body(ls, v, 1, ls->linenumber); // ismethod when declared as assignment
       return;
     }
     default: {
@@ -1051,11 +1190,12 @@ static UnOpr getunopr (int op) {
     case '-': return OPR_MINUS;
     case '~': return OPR_BNOT;
     case '#': return OPR_LEN;
+    case TK_NEW: return OP_EXTRAARG+1;
     default: return OPR_NOUNOPR;
   }
 }
 
-
+// MODIFIED
 static BinOpr getbinopr (int op) {
   switch (op) {
     case '+': return OPR_ADD;
@@ -1118,7 +1258,10 @@ static BinOpr subexpr (LexState *ls, expdesc *v, int limit) {
     subexpr(ls, v, UNARY_PRIORITY);
     luaK_prefix(ls->fs, uop, v, line);
   }
-  else jual_simpleexp(ls, v);
+  else if (uop == (OP_EXTRAARG+1))
+  {
+      // ignore keyword 'new' - do nothing
+  } else jual_simpleexp(ls, v);
   /* expand while operators have priorities higher than 'limit' */
   op = getbinopr(ls->t.token);
   while (op != OPR_NOBINOPR && priority[op].left > limit) {
@@ -1236,6 +1379,37 @@ static void assignment (LexState *ls, struct LHS_assign *lh, int nvars) {
   }
   init_exp(&e, VNONRELOC, ls->fs->freereg-1);  /* default assignment */
   luaK_storevar(ls->fs, &lh->v, &e);
+}
+
+static void jual_compound (LexState *ls, struct LHS_assign *lh, int opType) {
+
+  FuncState * fs=ls->fs;
+  expdesc infix, rh;
+  int nexps;
+  int line=ls->linenumber;
+  BinOpr op;
+
+  check_condition(ls, VLOCAL <= lh->v.k && lh->v.k <= VINDEXED,
+                      "syntax error in left hand expression in compound assignment");
+
+  /* parse Compound operation. */
+  switch (opType) {
+      case TK_CADD: op = OPR_ADD; break;
+      case TK_CSUB: op = OPR_SUB; break;
+      case TK_CMUL: op = OPR_MUL; break;
+      case TK_CDIV: op = OPR_DIV; break;
+      case TK_CMOD: op = OPR_MOD; break;
+  };
+  luaX_next(ls);
+
+  /* parse right-hand expression */
+  nexps = explist(ls, &rh);
+  check_condition(ls, nexps == 1, "syntax error in right hand expression in compound assignment");
+
+  infix = lh->v;
+  luaK_infix(fs,op,&infix);
+  luaK_posfix(fs, op, &infix, &rh, line);
+  luaK_storevar(fs, &(lh->v), &infix);
 }
 
 
@@ -1399,13 +1573,13 @@ static void jual_create_forinpairs (LexState *ls, expdesc *var) {
 
   TString *varname = luaX_newstring(ls, "pairs", 5);
   FuncState *fs = ls->fs;
-  if (singlevaraux(fs, varname, var, 1) == VVOID) {  /* global name? */
+  // if (singlevaraux(fs, varname, var, 1) == VVOID) {  /* global name? */
     expdesc key;
     singlevaraux(fs, ls->envn, var, 1);  /* get environment variable */
     lua_assert(var->k == VLOCAL || var->k == VUPVAL);
     codestring(ls, &key, varname);  /* key is variable name */
     luaK_indexed(fs, var, &key);  /* env[varname] */
-  }
+  // }
 }
 
 
@@ -1483,7 +1657,10 @@ static void jual_forICSstat (LexState *ls, int line) {
   int condinit, condexit;
   int stepinit, stepexit;
   int blockinit;
-  if (ls->t.token != ';') { statement(ls); };
+  if (ls->t.token != ';') { 
+      check_condition(ls, ls->t.token != TK_LOCAL, "Declare variables outside for loop! Syntax error");
+      statement(ls);
+  };
   checknext(ls, ';');
   condinit = luaK_getlabel(fs);
   condexit = cond(ls);
@@ -1657,8 +1834,9 @@ static int funcname (LexState *ls, expdesc *v) {
   /* funcname -> NAME {fieldsel} [':' NAME] */
   int ismethod = 0;
   singlevar(ls, v);
-  while (ls->t.token == '.')
+  while (ls->t.token == '.') {
     fieldsel(ls, v);
+  };
   if (ls->t.token == ':') {
     ismethod = 1;
     fieldsel(ls, v);
@@ -1680,13 +1858,16 @@ static void funcstat (LexState *ls, int line) {
 
 
 static void exprstat (LexState *ls) {
-  /* stat -> func | assignment */
+  /* stat -> func | assignment | compound */
   FuncState *fs = ls->fs;
   struct LHS_assign v;
   suffixedexp(ls, &v.v);
   if (ls->t.token == '=' || ls->t.token == ',') { /* stat -> assignment ? */
     v.prev = NULL;
     assignment(ls, &v, 1);
+  } else if (ls->t.token >= TK_CADD && ls->t.token <= TK_CMOD) {
+    v.prev = NULL;
+    jual_compound(ls, &v, ls->t.token);
   }
   else {  /* stat -> func */
     check_condition(ls, v.v.k == VCALL, "syntax error");

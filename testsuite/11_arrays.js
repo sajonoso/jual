@@ -1,22 +1,35 @@
 
 // test of arrays
 
-var myAry = ["one", 2, "three", 4, 5, 6, 7, '8'];
-
-var i;
-for (i = 0; i<8; i=i+1) {
-    print(myAry[i]);
-};
-
-print ( "Size: " + length(myAry) );
+// There are two ways to declare an array
+var arrayLiteral = [1, 3, "one", 2, "three", 4, 5, 6, 7, '8'];
+var arrayConstructor = new Array("mon", "tue", "wed", "thu", "fri", "sat", "sun");
 
 function printa(a) {
-    var L=length(a);
-    for (var i=0; i<L; i=i+1) { print(a[i]) };
+    var i; var sz=""; var L=a.size();
+    for (i=0; i<L; i=i+1) { sz = sz.concat(a[i], " "); };
+    print(sz);
 };
 
-var szJoined = join(myAry, ";");
+printa( arrayLiteral );
+print ( "Size: " + arrayLiteral.size() );
+
+printa( arrayConstructor );
+print ( "Size: " + arrayConstructor.size() );
+var szJoined = arrayConstructor.join(";");
 
 print ( szJoined  );
+printa( szJoined.split(";") );
 
-printa( split(szJoined , ";") );
+
+// Testing nested Arrays
+var aNesting1 = ["one", 2, "three", 4, 5, 6, [7, '8'] ];
+print( aNesting1[6][1] );
+print( aNesting1[6][0] );
+print( aNesting1[5] );
+print( aNesting1.size() );
+
+var aNesting2 = ["one", {name:"john", age:34}, 2, "three", 4, 5, 6, [7, '8'] ];
+print( aNesting2[1].name );
+print( aNesting2[1].age );
+print( aNesting2.size() );

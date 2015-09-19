@@ -56,7 +56,6 @@ static const luaL_Reg loadedlibs[] = {
   {NULL, NULL}
 };
 
-#include "jual_init.h"
 
 LUALIB_API void luaL_openlibs (lua_State *L) {
   const luaL_Reg *lib;
@@ -65,6 +64,5 @@ LUALIB_API void luaL_openlibs (lua_State *L) {
     luaL_requiref(L, lib->name, lib->func, 1);
     lua_pop(L, 1);  /* remove lib */
   }
-  // int iReturn = luaL_dostring(L, bsJual_Init);
-  (void)(luaL_loadbuffer(L, &bsJual_Init[0], sizeof(bsJual_Init), "Jual_Init") || lua_pcall(L, 0, LUA_MULTRET, 0));
 }
+

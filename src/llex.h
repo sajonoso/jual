@@ -1,5 +1,6 @@
 /*
 ** $Id: llex.h,v 1.78 2014/10/29 15:38:24 roberto Exp $
+** Copyright 2015 Sajon Oso
 ** Lexical Analyzer
 ** See Copyright Notice in lua.h
 */
@@ -36,8 +37,8 @@ enum RESERVED {
   TK_SUPER, TK_SWITCH, TK_THROW, TK_TO, TK_TRY, TK_UNDEFINED, /* change NUM_RESERVED if TK_UNDEFINED is not last */
   /* other terminal symbols */
   TK_IDIV, TK_CONCAT, TK_DOTS, TK_EQ, TK_GE, TK_LE, TK_NE,
-  TK_SHL, TK_SHR,
-  TK_DBCOLON, TK_EOS,
+  TK_CADD, TK_CSUB, TK_CMUL, TK_CDIV, TK_CMOD,
+  TK_SHL, TK_SHR, TK_DBCOLON, TK_EOS,
   TK_FLT, TK_INT, TK_NAME, TK_STRING
 };
 
