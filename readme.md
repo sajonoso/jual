@@ -30,7 +30,7 @@ Run the batch file: *runtests_wsh.cmd* to execute the test suite.
 Under Linux the Jual VM is compared with the NodeJS runtime.
 
 ### Try it for yourself
-The included Windows 32-bit binaries are compiled using MingW (gcc version 4.8.1).  Simply download these from the bin folder and run
+The included Windows 32-bit binaries are compiled using MingW (gcc version 4.8.1).  Simply download these from the bin folder and run. 
 There are also binaries for Linux compiled under 32-bit RHEL 6.6
 
 ### Licensing
