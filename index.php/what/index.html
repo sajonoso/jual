@@ -30,14 +30,12 @@ img.emoji {
 	padding: 0 !important;
 }
 </style>
-<link rel='stylesheet' id='vscf_style-css'  href='../../wp-content/plugins/very-simple-contact-form/vscf_style.css@ver=4.2.css' type='text/css' media='all' />
 <link rel='stylesheet' id='pilcrow-css'  href='../../wp-content/themes/pilcrow/style.css@ver=4.2.css' type='text/css' media='all' />
 <link rel="EditURI" type="application/rsd+xml" title="RSD" href="../../xmlrpc.php@rsd" />
 <link rel="wlwmanifest" type="application/wlwmanifest+xml" href="../../wp-includes/wlwmanifest.xml" /> 
 <meta name="generator" content="WordPress 4.2" />
 <link rel='canonical' href='index.html' />
 <link rel='shortlink' href='index.html' />
-	<style type="text/css">.recentcomments a{display:inline !important;padding:0 !important;margin:0 !important;}</style>
 </head>
 
 <body class="page page-id-50 page-template-default no-sidebar color-light">
@@ -52,11 +50,12 @@ img.emoji {
 
 			<div id="nav" role="navigation">
 			  				<div class="skip-link screen-reader-text"><a href="index.html#content" title="Skip to content">Skip to content</a></div>
-								<div class="menu"><ul><li ><a href="../../index.html">Home</a></li><li class="page_item page-item-6"><a href="../why/index.html">Why</a></li><li class="page_item page-item-50 current_page_item"><a href="index.html">What</a></li><li class="page_item page-item-63"><a href="../where/index.html">Where</a></li><li class="page_item page-item-9"><a href="../faq/index.html">FAQ</a></li><li class="page_item page-item-17"><a href="../contact/index.html">Contact</a></li></ul></div>
+								<div class="menu"><ul><li ><a href="../../index.html">Home</a></li><li class="page_item page-item-9"><a href="../why/index.html">Why</a></li><li class="page_item page-item-50 current_page_item"><a href="index.html">What</a></li><li class="page_item page-item-63"><a href="../where/index.html">Where</a></li><li class="page_item page-item-10"><a href="../faq/index.html">FAQ</a></li><li class="page_item page-item-17"><a href="../contact/index.html">Contact</a></li></ul></div>
 			</div><!-- #nav -->
 
 			<div id="pic">
 				<a href="../../index.html" rel="home">
+										<img src="../../wp-content/uploads/beachline-e1430112514342.jpg" width="990" height="90" alt="" />
 								</a>
 			</div><!-- #pic -->
 		</div><!-- #header -->
@@ -82,12 +81,17 @@ while (x &lt; 10) {
         if (y  == 20) { break; };
         y = y + 1;
     };
-    szOut = (szOut + "\n");
+    szOut = (szOut + "n");
     x = x + 1;
     
     if (x == 6) { break; };
 };
 print (szOut);</pre>
+<p><strong>What can I use JualScript for?</strong><br />
+Here are some ideas I had in mind:<br />
+* It can be used as a text processing tool like awk or as an automation tool like JScript.<br />
+* It can be be used as a replacement for mod_lua, so that Apache can provide a light weight JavaScript-like server side scripting engine.<br />
+* It can help existing software already using the Lua engine (like World of War craft) transition from the relatively obscure Lua language to the more popular JavaScript language.</p>
 <p><strong>What are some of the differences in the syntax between JavaScript and JualScript?</strong></p>
 <p>In JualScript:</p>
 <p>* Curly braces are required, even for single line code.<br />
@@ -96,32 +100,15 @@ print (szOut);</pre>
 <pre>var j=1, k=2;     // Works in JavaScript but not JualScript (AVOID)
 var j,k = 1,2;    // Works in JualScript but not JavaScript (AVOID)
 var j=1; var k=2; // Recommended way works in both</pre>
-<p>* Array initialization with key/value pairs is not supported:</p>
-<pre>// Works in JavaScript but not JualScript (AVOID)
-var MyArray = {"a" : "Athens" , "b" : "Belgrade", "c" : "Cairo"};
-
-// Works in JualScript but not JavaScript (AVOID)
-var MyArray = { ["a"]="Athens", ["b"]="Belgrade", ["c"]="Cairo" };
-
-// Use this instead - works in both languages
-var MyArray = {};
-MyArray.a = "Athens";
-MyArray.b = "Belgrade";
-MyArray.c = "Cario";
-
-// This also works in both languages
-MyArray["a"] = "Athens";</pre>
 <p><strong>What are some of the other differences between JualScript and JavaScript?</strong></p>
 <p>There are many.  In JualScript:<br />
 * There is no special values like <strong>undefined</strong> and <strong>NaN</strong> &#8211; only <strong>null</strong>.<br />
-* Only <strong>false</strong> and <strong>null</strong> evaluate to a <strong>false</strong> condition.  All other values evaluate to true including: the number zero 0, the empty string &#8220;&#8221;. Make explicit comparisons in your conditional statements.<br />
+* Only <strong>false</strong> and <strong>null</strong> evaluate to a <strong>false</strong> condition.  All other values evaluate to true including: the number zero 0 and the empty string &#8220;&#8221;.<br />
+Make explicit comparisons in your conditional statements.<br />
 * Different error handling mechanism: pcall and xpcall vs try/catch/finally<br />
 * Different ways of prototyping and defining object classes.<br />
 (The one method of defining classes using closures can be used by both JualScript and JavaScript. See the example file <strong>15_classes.js</strong> in the testsuite folder)<br />
-* String access/manipluation is via functions, not class methods. i.e.</p>
-<pre>var MyString = "Hello world";
-print (MyString.charAt(3));  // Does not work in JualScript
-print (charAt(MyString,3));  // Use this instead</pre>
+* String and Array&#8217;s do not have a length property.  Use the .size() method instead.</p>
 <p>A summary of the key language features and the base library functions is listed in the file <a href="https://github.com/sajonoso/jual/blob/master/jual_reference.txt"><span style="color: #000080;">jual_reference.txt</span></a>.</p>
 <p><strong>What differences do I need to watch out for when converting JavaScript code to JualScript?</strong></p>
 <p>* The most tricky thing to watch out for is string concatenation with the + operator. The difference in output is caused by automatic number coercion and conversion in the Lua VM. This simple loop will produce different results under JualScript and JavaScript:</p>
